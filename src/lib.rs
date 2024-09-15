@@ -4,7 +4,7 @@
 
 //#![warn(missing_docs)]
 
-use eframe::egui::{Id, Response, Ui, Widget, Button, Vec2, Layout, Align};
+use eframe::egui::{include_image, Align, Button, Id, Image, Layout, Response, Ui, Vec2, Widget};
 use std::hash::Hash;
 
 
@@ -72,8 +72,25 @@ impl<'a, F: FnMut(&mut Ui, &str) -> Response> Widget
                 ui.add(Button::new(format!("Choose max {} options", max_opt)).min_size(Vec2 { x: 200.0, y: 22.0 }))
             }
             else {
+                ui.set_width(320.0);
                 ui.horizontal(|ui| {
-                    ui.set_width(320.0);
+                    ui.with_layout(Layout::left_to_right(Align::TOP), |ui| {
+                        let icon_trash = Image::new(include_image!("../assets/trash.svg")).maintain_aspect_ratio(true).fit_to_original_size(0.217);
+                        if ui.add(egui::Button::image(icon_trash)).clicked() {
+                            answers.clear();
+                            items.clear();
+                            for item in options.clone() {
+                                items.push(item)
+                            }
+                            ui.memory_mut(|m| m.open_popup(popup_id))
+                        };
+                        let icon_open = Image::new(include_image!("../assets/open.svg")).maintain_aspect_ratio(true).fit_to_original_size(0.954);
+                        if ui.add(egui::Button::image(icon_open)).clicked() && !items.is_empty() {
+                            ui.memory_mut(|m| m.open_popup(popup_id))
+                        }
+                    });
+                });
+                ui.horizontal(|ui| {
                     ui.horizontal_wrapped(|ui| {
                         ui.set_max_width(220.0);
                         for (i, item) in answers.clone().iter().enumerate() {
@@ -82,21 +99,6 @@ impl<'a, F: FnMut(&mut Ui, &str) -> Response> Widget
                                 items.push(item.clone());
                                 ui.memory_mut(|m| m.open_popup(popup_id))
                             };
-                        }
-                    });
-                    ui.with_layout(Layout::right_to_left(Align::TOP), |ui| {
-                        let icon_trash = egui_phosphor::regular::TRASH.to_owned();
-                        if ui.button(icon_trash).clicked() {
-                            answers.clear();
-                            items.clear();
-                            for item in options.clone() {
-                                items.push(item)
-                            }
-                            ui.memory_mut(|m| m.open_popup(popup_id))
-                        };
-                        let icon_open = egui_phosphor::regular::FOLDER_OPEN.to_owned();
-                        if ui.button(icon_open).clicked() && !items.is_empty() {
-                            ui.memory_mut(|m| m.open_popup(popup_id))
                         }
                     });
                 }).response
