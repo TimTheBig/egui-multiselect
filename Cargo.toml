@@ -16,5 +16,4 @@ exclude = ["examples", "media"]
 [dependencies]
 eframe = { version = "0.28", default-features = false }
 egui = "0.28"
-egui-notify = "0.15.0"
 egui_extras = { version = "0.28", features = ["svg"] }

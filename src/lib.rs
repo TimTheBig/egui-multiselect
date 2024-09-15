@@ -20,7 +20,7 @@ pub struct MultiSelect<
     options: &'a Vec<String>,
     display: F,
     max_opt: &'a u8,
-    toasted: &'a mut bool,
+    choose_msg: &'a str,
 }
 
 impl<'a, F: FnMut(&mut Ui, &str) -> Response>
@@ -34,7 +34,7 @@ impl<'a, F: FnMut(&mut Ui, &str) -> Response>
         options: &'a Vec<String>,
         display: F,
         max_opt: &'a u8,
-        toasted: &'a mut bool,
+        choose_msg: &'a str,
     ) -> Self {
         Self {
             popup_id: Id::new(id_source),
@@ -43,7 +43,7 @@ impl<'a, F: FnMut(&mut Ui, &str) -> Response>
             options,
             display,
             max_opt,
-            toasted,
+            choose_msg,
         }
     }
 }
@@ -59,7 +59,7 @@ impl<'a, F: FnMut(&mut Ui, &str) -> Response> Widget
             options,
             mut display,
             max_opt,
-            toasted,
+            choose_msg,
         } = self;
 
         if items.is_empty() && answers.is_empty() {
@@ -69,30 +69,13 @@ impl<'a, F: FnMut(&mut Ui, &str) -> Response> Widget
         }
         let mut r = 
             if answers.is_empty() {
-                ui.add(Button::new(format!("Choose max {} options", max_opt)).min_size(Vec2 { x: 200.0, y: 22.0 }))
+                ui.add(Button::new(choose_msg).min_size(Vec2 { x: 200.0, y: 22.0 }))
             }
             else {
                 ui.set_width(320.0);
                 ui.horizontal(|ui| {
-                    ui.with_layout(Layout::left_to_right(Align::TOP), |ui| {
-                        let icon_trash = Image::new(include_image!("../assets/trash.svg")).maintain_aspect_ratio(true).fit_to_original_size(0.217);
-                        if ui.add(egui::Button::image(icon_trash)).clicked() {
-                            answers.clear();
-                            items.clear();
-                            for item in options.clone() {
-                                items.push(item)
-                            }
-                            ui.memory_mut(|m| m.open_popup(popup_id))
-                        };
-                        let icon_open = Image::new(include_image!("../assets/open.svg")).maintain_aspect_ratio(true).fit_to_original_size(0.954);
-                        if ui.add(egui::Button::image(icon_open)).clicked() && !items.is_empty() {
-                            ui.memory_mut(|m| m.open_popup(popup_id))
-                        }
-                    });
-                });
-                ui.horizontal(|ui| {
                     ui.horizontal_wrapped(|ui| {
-                        ui.set_max_width(220.0);
+                        ui.set_max_width(320.0);
                         for (i, item) in answers.clone().iter().enumerate() {
                             if ui.selectable_label(true, format!("{item} ｘ")).clicked() {
                                 answers.remove(i);
@@ -117,9 +100,6 @@ impl<'a, F: FnMut(&mut Ui, &str) -> Response> Widget
                             answers.push(text.clone());
                             items.remove(i);
                             changed = true;
-                        }
-                        else {
-                            *toasted = true;                  
                         }
                     }
                 }
