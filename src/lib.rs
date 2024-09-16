@@ -4,7 +4,7 @@
 
 //#![warn(missing_docs)]
 
-use eframe::egui::{include_image, Align, Button, Id, Image, Layout, Response, Ui, Vec2, Widget};
+use eframe::egui::{Button, Id, Response, Ui, Vec2, Widget};
 use std::hash::Hash;
 
 
